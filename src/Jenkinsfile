@@ -1,18 +1,25 @@
-# Jenkinsfile
-pipeline:
-  agent any
-  stages:
-    stage('Clone Repository'):
-      steps:
-        git url: '<repo-url>', branch: 'main'
-    stage('Build Docker Image'):
-      steps:
-        sh 'docker build -t sample-python-app .'
-    stage('Deploy to Minikube'):
-      steps:
-        sh '''
-        kubectl config set-cluster minikube --server=https://<VM-Address>:8443 --insecure-skip-tls-verify=true
-        kubectl config set-context minikube --cluster=minikube
-        kubectl config use-context minikube
-        kubectl apply -f deployment.yaml
-        '''
+pipeline {
+    agent any
+    stages {
+        stage('Clone Repository') {
+            steps {
+                git url: '<repo-url>', branch: 'main'
+            }
+        }
+        stage('Build Docker Image') {
+            steps {
+                sh 'docker build -t sre-app:latest .'
+            }
+        }
+        stage('Deploy to Minikube') {
+            steps {
+                sh '''
+                kubectl config set-cluster minikube --server=https://<minikube-vm-ip>:8443 --insecure-skip-tls-verify=true
+                kubectl config set-context minikube --cluster=minikube
+                kubectl config use-context minikube
+                kubectl apply -f deployment.yaml
+                '''
+            }
+        }
+    }
+}
